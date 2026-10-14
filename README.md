@@ -1,61 +1,50 @@
-# Urban-Intelligence-platform-
-🌆 Smart City Command & Analytics Platform
+# Chennai Urban Intelligence Platform
+> **Unified Smart City Situational Awareness & Flood Predictive Command Center**
+> Built for Greater Chennai Corporation (GCC), Chennai Smart City, and TNSDMA operations.
 
-The Urban Intelligence Platform is an innovative smart city management system designed to enhance urban living through real-time monitoring, data analytics, and intelligent decision-making. By integrating data from multiple sources such as traffic cameras, environmental sensors, weather stations, public safety systems, and civic infrastructure, the platform provides a unified view of city operations.
+---
 
-The platform features an interactive dashboard that enables city administrators to monitor critical urban metrics, including traffic flow, air quality, water management, energy consumption, emergency incidents, and weather conditions. Advanced analytics and machine learning capabilities help identify patterns, predict potential issues, and support proactive decision-making.
+## 🏛️ System Architecture Overview
 
-Key features include real-time traffic monitoring, environmental tracking, flood and disaster alerts, crime and emergency management, infrastructure monitoring, and citizen engagement services. The system presents complex data through intuitive visualizations, maps, charts, and alerts, allowing authorities to respond quickly and effectively to urban challenges.
+The **Chennai Urban Intelligence Platform** is a dark-mode geospatial command-center frontend and ML inference engine combining:
+- **Hydrological Flood Intelligence**: Supervised Machine Learning (Random Forest Classifier + K-Means spatial clustering) trained on Indian flood observation data and calibrated with Chennai catchments (Adyar River, Cooum River, Buckingham Canal, Chembarambakkam Reservoir).
+- **Rainfall & Meteorological Radar**: Doppler radar precipitation tracking, automatic weather station telemetry (Nungambakkam, Meenambakkam, Taramani, Chembarambakkam, Ennore, Velachery), and 24-hour hyetographs with IMD thresholds.
+- **Traffic Mobility Intelligence**: Real-time arterial corridor transit velocity (OMR IT Expressway, Anna Salai, GST Road, ECR, Inner Ring Road), subway waterlogging chokepoints, and dynamic rerouting suggestions.
+- **Risk Zones & K-Means Clustering**: 5 unsupervised environmental archetypes with multi-factor Radar chart feature breakdowns.
+- **Tactical Situational AI Insights**: Deterministic rule-based synthesis linking reservoir outflows and tidal backwaters to mitigation actions.
+- **Tactical Alerts Center**: Multi-agency dispatch feed with acknowledged statuses and Common Alerting Protocol (CAP) gateway simulation.
+- **Model Governance & Performance**: Empirical classification metrics (Accuracy, Precision, Recall, F1, ROC-AUC), 2×2 confusion matrix heatmap, and feature importance bar charts.
 
-Built with scalability and usability in mind, the Urban Intelligence Platform supports sustainable city development by optimizing resource utilization, improving public safety, and enhancing service delivery. The platform serves as a centralized command center for modern smart cities, enabling data-driven governance and creating safer, smarter, and more resilient urban environments for citizens.
+---
 
-🚀 Features
-📊 Real-Time City Dashboard
-🚦 Traffic & Congestion Monitoring
-🌦️ Weather Intelligence
-🌊 Flood Risk Prediction
-🌱 Air Quality Monitoring
-🚨 Emergency Response Management
-🏙️ Infrastructure Monitoring
-🤖 AI & Predictive Analytics
-🗺️ Interactive City Maps
-📱 Citizen Alert System
-🛠️ Technology Stack
+## 🚀 Running the Platform
 
-Frontend
+### 1. Prerequisites
+- **Node.js**: v18+ (tested on Node v24)
+- **Python**: 3.10+ (with `fastapi`, `uvicorn`, `scikit-learn`, `pandas`, `joblib`)
 
-React.js
-Vite
-Tailwind CSS
-Chart.js / Recharts
+### 2. Start the FastAPI ML Backend
+```bash
+# From the project root:
+python backend/server.py
+```
+- Listens on `http://127.0.0.1:8000`
+- Available endpoints:
+  - `GET /health` — Health and model loading status
+  - `POST /predict` — Random Forest flood prediction and K-Means cluster assignment
+  - `GET /api/model-performance` — Live evaluation metrics and confusion matrix
 
-Backend
+### 3. Start the Frontend Command Center
+```bash
+# In another terminal:
+npm run dev
+```
+- Open `http://127.0.0.1:5173` in your browser.
 
-Node.js
-Express.js
+---
 
-Database
-
-MongoDB
-
-Analytics & AI
-
-Python
-Machine Learning Models
-
-Maps & Visualization
-
-Leaflet.js
-OpenStreetMap APIs
-🎯 Project Objectives
-Improve urban planning and decision-making.
-Reduce traffic congestion and response times.
-Enhance disaster preparedness and management.
-Monitor environmental sustainability indicators.
-Provide real-time insights for smart city governance.
-📈 Future Enhancements
-AI-powered traffic optimization
-IoT device integration
-Smart parking management
-Citizen mobile application
-Digital twin city visualization
+## 🗺️ Geospatial & Command Center Features
+- **CartoDB Dark Matter Tiles**: Ultra-clean aerospace styling.
+- **Interactive Layers**: Toggle Flood Risk, Rainfall Halos, Traffic Corridors, Waterways, and Roadway Incidents.
+- **Hotspot Presets**: One-click simulation for **Velachery Lake Basin**, **Saidapet Adyar Spate**, **OMR Tech Corridor**, **Besant Nagar Coast**, and **Tambaram Highlands**.
+- **Dual Runtime**: Seamlessly works with live FastAPI backend or calibrated offline simulation with clear visual provenance badges.

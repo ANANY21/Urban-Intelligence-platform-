@@ -1,0 +1,133 @@
+services:
+  # ============================================================================
+  # 1. APACHE KAFKA MESSAGE BROKER (KRaft Mode - No ZooKeeper Required)
+  # ============================================================================
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: chennai-kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:29092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      CLUSTER_ID: '4L622nShTUiBenVznCXfrA'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ============================================================================
+  # 2. KAFKA TOPIC PROVISIONER (Ensures 9 Topics with Partitions & Retention)
+  # ============================================================================
+  kafka-init:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: chennai-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: 'kafka:9092'
+    command: ["python", "-m", "streaming.init_kafka_topics"]
+    restart: "no"
+
+  # ============================================================================
+  # 3. APACHE SPARK MASTER (Cluster Manager & Web UI on :8080)
+  # ============================================================================
+  spark-master:
+    image: bitnami/spark:3.5.0
+    container_name: chennai-spark-master
+    hostname: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080" # Spark Master Web UI
+      - "7077:7077" # Spark Master RPC
+    volumes:
+      - spark_checkpoints:/tmp/spark_checkpoints
+
+  # ============================================================================
+  # 4. APACHE SPARK WORKER (Distributed Task Execution)
+  # ============================================================================
+  spark-worker:
+    image: bitnami/spark:3.5.0
+    container_name: chennai-spark-worker
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - spark_checkpoints:/tmp/spark_checkpoints
+
+  # ============================================================================
+  # 5. FASTAPI BACKEND & INGESTION PRODUCER SERVICE
+  # ============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: chennai-fastapi-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - DEFAULT_DATA_MODE=demo
+      - REPLAY_DEFAULT_SPEED=1.0
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - backend_db:/app/backend
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # ============================================================================
+  # 6. REACT COMMAND CENTER FRONTEND (Nginx Reverse Proxy on :3000)
+  # ============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: chennai-command-center
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  kafka_data:
+    driver: local
+  spark_checkpoints:
+    driver: local
+  backend_db:
+    driver: local

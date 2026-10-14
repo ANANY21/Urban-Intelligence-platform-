@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-command-bg: #080D16;
+    --color-command-surface: #101827;
+    --color-command-card: #141F30;
+  }
+
+  body {
+    background-color: #080D16;
+    color: #F1F5F9;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Custom Scrollbar for Command Center */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080D16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #35D9F5;
+}
+
+/* Leaflet Custom Command Dark Theme */
+.leaflet-container {
+  background: #080D16 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.osm-dark-tiles .leaflet-tile,
+.leaflet-tile {
+  filter: brightness(0.75) invert(1) contrast(2.8) hue-rotate(200deg) saturate(0.35) brightness(0.65);
+}
+
+.native-dark-tiles .leaflet-tile {
+  filter: none !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(8, 13, 22, 0.85) !important;
+  color: #64748B !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  border-top-left-radius: 6px !important;
+  padding: 2px 8px !important;
+  border-left: 1px solid rgba(51, 65, 85, 0.4) !important;
+  border-top: 1px solid rgba(51, 65, 85, 0.4) !important;
+}
+
+.leaflet-control-attribution a {
+  color: #35D9F5 !important;
+  text-decoration: none !important;
+}
+
+.leaflet-control-attribution a:hover {
+  text-decoration: underline !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #101827 !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(53, 217, 245, 0.3) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8), 0 0 15px -3px rgba(53, 217, 245, 0.2) !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-tip {
+  background: #101827 !important;
+  border: 1px solid rgba(53, 217, 245, 0.3) !important;
+}
+
+.leaflet-control-zoom a {
+  background: #101827 !important;
+  color: #35D9F5 !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #141F30 !important;
+  color: #ffffff !important;
+}
+
+/* Radar pulse animation */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.animate-radar {
+  animation: radar-pulse 3s infinite ease-in-out;
+}
+
+/* Subtle scanline effect for high-tech monitors */
+.scanline-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
